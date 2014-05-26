@@ -23,6 +23,14 @@
             game.load.image('imgMarius', 'assets/marius.png');
             game.load.image('imgMarlene', 'assets/marlene.png');
 
+            game.load.image('imgSaschaHead', 'assets/saschaHead.png');
+            game.load.image('imgEmmanuelHead', 'assets/emmanuelHead.png');
+            game.load.image('imgJennyHead', 'assets/jennyHead.png');
+            game.load.image('imgMariusHead', 'assets/mariusHead.png');
+            game.load.image('imgMarleneHead', 'assets/marleneHead.png');
+
+            game.load.image('imgTable', 'assets/table.png');
+
             game.load.image('bubble1', 'assets/speach_bubble1.png');
 			game.load.image('bubble2', 'assets/speach_bubble2.png');
 
@@ -59,15 +67,11 @@
 		var instruction_text_1
 		var instruction_text_2
 		var instruction_text_3
-		
-        //bubble
-        var bubble_1;
-		var bubble_2;
 
 		var smallTrophy;
 		var timerPic;
 		
-        var style = { font: "18px Segopr", fill: "#000000", align: "center" };
+        var style = { font: "18px Segopr", fill: "#000000", align: "left" };
     	var text_1;
 		var text_2;
 		
@@ -85,13 +89,15 @@
         var dinners = new Array(10);
         var infosm = new Array(15);
         var infosw = new Array(15);
+        var ph2questions = new Array(10);
 
 
-        //Gamevars nonstatic
+        // game Parameter
         var timeForAnswer = 15;
         var questionSolvedFirstStep = 30;
         var questionSolvedSecondStep = 25;
         var pointsPerSecondLeft = 1;
+        var questionsAsked = 10;
 
 
         // Vars Phase 1
@@ -109,6 +115,10 @@
         var buttonArray = new Array(6);
         var timeLeft;
         var timeLeftTimer;
+
+        //Vars Phase 2
+        var ph2questionCount = 0;
+
 
 
         function create () {
@@ -157,13 +167,11 @@
 	    	solutionButton6.visible = false;
 
 
-
             text = game.add.text(game.world.centerX + 50, game.world.centerY - 200, "dasd", style);
             text.visible = false;
 
-            pointsText = game.add.text(750, 25, "", style);
-            pointsText.setText(gamePoints);
-            pointsText.visible = false;
+            questionsText = game.add.text(750, 40, "", style);
+            ph2QuestionText = game.add.text(200, 320, "", style);
 
             timeLeftText = game.add.text(550, 25, "", style);
             timeLeftText.visible = false;
@@ -178,11 +186,37 @@
 			jenny = game.add.sprite(540, 140, 'imgJenny');
 			marius = game.add.sprite(130, 140, 'imgMarius');
 
+			saschaHead = game.add.button(300, 400, 'imgSaschaHead', ph2CheckSolution, this,1 ,0, 1, 0);
+			saschaHead.name = 'sascha';
+        	marleneHead = game.add.button(200, 400, 'imgMarleneHead', ph2CheckSolution, this,1 ,0, 1, 0);
+        	marleneHead.name = 'marlene';
+			emmanuelHead = game.add.button(100, 400, 'imgEmmanuelHead', ph2CheckSolution, this,1 ,0, 1, 0);
+			emmanuelHead.name = 'emmanuel';
+			jennyHead = game.add.button(400, 400, 'imgJennyHead', ph2CheckSolution, this,1 ,0, 1, 0);
+			jennyHead.name = 'jenny';
+			mariusHead = game.add.button(500, 400, 'imgMariusHead', ph2CheckSolution, this,1 ,0, 1, 0);
+			mariusHead.name = 'marius';
+
+			table = game.add.sprite(30, 30, 'imgTable');
+			table.visible = false;
+
 			marius.visible = false;
 			jenny.visible = false;
 			emmanuel.visible = false;
 			marlene.visible = false;
 			sascha.visible = false;
+
+			mariusHead.visible = false;
+			mariusHead.input = false;
+			jennyHead.visible = false;
+			jennyHead.input = false;
+			emmanuelHead.visible = false;
+			emmanuelHead.input = false;
+			marleneHead.visible = false;
+			marleneHead.input = false;
+			saschaHead.visible = false;
+			saschaHead.input = false;
+
 
 			bubble1_1 = game.add.sprite(230, 60, 'bubble1');
 			bubble1_1.visible = false;
@@ -190,10 +224,10 @@
 			bubble1_2 = game.add.sprite(140, 60, 'bubble2');
 			bubble1_2.visible = false;			
 			
-			text_1 = game.add.text(320, 115, "Ich heiße Marius", style);
+			text_1 = game.add.text(315, 115, "Ich heiße Marius", style);
             text_1.visible = false;
 			
-			text_2 = game.add.text(200, 110, "Ich heiße Marius", style);
+			text_2 = game.add.text(195, 110, "Ich heiße Marius", style);
             text_2.visible = false;	
 
             timerPic = game.add.sprite(517, 13, 'imgSmallTimer');
@@ -217,45 +251,45 @@
 			table[0][1][0] = 'Emmanuel';
 			table[0][2][0] = getRandomInt(20,24);
 			table[0][3][0] = 'Informatiker';
-			table[0][4][0] = 'Robotorkaempfe';
+			table[0][4][0] = 'Robotorkämpfe';
 			table[0][5][0] = 'Kantine';
 			table[0][6][0] = 'Nachtwandern';
-			table[0][7][0] = 'Fertiggericht';
-			table[0][8][0] = 'XXX';
+			table[0][7][0] = 'Fertiggerichte';
+			table[0][8][0] = 'Technikfreak';
 
 			table[1][1][0] = 'Marlene';
-			table[1][2][0] = getRandomInt(18,19);
+			table[1][2][0] = getRandomInt(25,29);
 			table[1][3][0] = 'Mathelehrerin';
 			table[1][4][0] = 'Reiten';
 			table[1][5][0] = 'Kantine';
 			table[1][6][0] = 'Cosplay';
 			table[1][7][0] = 'Selbstgekochtes';
-			table[1][8][0] = 'XXX';
+			table[1][8][0] = 'Prinzessin';
 
 			table[2][1][0] = 'Sascha';
 			table[2][2][0] = getRandomInt(30,36);
 			table[2][3][0] = 'Versicherungsvertreter';
 			table[2][4][0] = 'Tanzen';
 			table[2][5][0] = 'Restaurant';
-			table[2][6][0] = 'XXX';
+			table[2][6][0] = 'Theater';
 			table[2][7][0] = 'Selbstgekochtes';
 			table[2][8][0] = 'Leitungswassertrinker';
 
 			table[3][1][0] = 'Jenny';
 			table[3][2][0] = getRandomInt(24,28);
 			table[3][3][0] = 'Mutter';
-			table[3][4][0] = 'XXX';
+			table[3][4][0] = 'Yoga';
 			table[3][5][0] = 'Selbstgekochtes';
 			table[3][6][0] = 'Basteln';
 			table[3][7][0] = 'Selbstgekochtes';
 			table[3][8][0] = 'Kompost';
 
 			table[4][1][0] = 'Marius';
-			table[4][2][0] = getRandomInt(25,29);
-			table[4][3][0] = 'Getraenkemarkt';
-			table[4][4][0] = 'Schuetzenverein';
+			table[4][2][0] = getRandomInt(18,19);
+			table[4][3][0] = 'Getränkemarkt';
+			table[4][4][0] = 'Schützenverein';
 			table[4][5][0] = 'Lieferservice';
-			table[4][6][0] = 'Fussball gucken';
+			table[4][6][0] = 'Fuballspiele';
 			table[4][7][0] = 'Fertiggericht';
 			table[4][8][0] = 'Glasflaschentrinker';
 			
@@ -279,7 +313,7 @@
 			jobsm[1] = 'Mathelehrer';
 			jobsm[2] = 'Versicherungsvertreter';
 			jobsm[3] = 'Vater';
-			jobsm[4] = 'Getränkemarktangestellter';
+			jobsm[4] = 'Getränkemarkt';
 			jobsm[5] = 'Zugführer';
 			jobsm[6] = 'Kindergärtner';
 			jobsm[7] = 'Arzt';
@@ -295,7 +329,7 @@
 			jobsw[1] = 'Mathelehrerin';
 			jobsw[2] = 'Versicherungsvertreterin';
 			jobsw[3] = 'Mutter';
-			jobsw[4] = 'Getränkemarktangestellte';
+			jobsw[4] = 'Getränkemarkt';
 			jobsw[5] = 'Zugführerin';
 			jobsw[6] = 'Kindergärtnerin';
 			jobsw[7] = 'Ärztin';
@@ -338,7 +372,7 @@
 			sports[2] = 'Tanzen';
 			sports[3] = 'Zielschießen';
 			sports[4] = 'Computerspielen';
-			sports[5] = 'Singen';
+			sports[5] = 'Pilates';
 			sports[6] = 'Fussballspielen';
 			sports[7] = 'Basketballspielen';
 			sports[8] = 'Wettschwimmen';
@@ -361,9 +395,9 @@
         	launches[4] = 'MCDonalds';
         	launches[5] = 'Nichts';
         	launches[6] = 'Milchschnitten';
-        	launches[7] = 'Kantine';
-        	launches[8] = 'Kantine';
-        	launches[9] = 'Kantine';
+        	launches[7] = 'Smoothie';
+        	launches[8] = 'Bananen';
+        	launches[9] = 'Schokolade';
 
         	hobbies[0] = 'Robotorkämpfe';
         	hobbies[1] = 'Cosplay';
@@ -424,6 +458,16 @@
         	infosw[13] = 'Leitungswassertrinkerin';
         	infosw[14] = 'Leitungswassertrinkerin';
 
+        	ph2questions[0] = 'Wer produziert besonders viel Elektromüll?';
+        	ph2questions[1] = 'Bei wem bleibt besonders viel Verpackungsmüll über?';
+        	ph2questions[2] = 'Wer produziert besonders viel Stoffmüll/Papiermüll?';
+        	ph2questions[3] = 'Bei wem wird besonders viel Glasmüll produziert?';
+        	ph2questions[4] = 'Wer verbraucht besonders viele Glühlampen und Akkus?';
+        	ph2questions[5] = 'Wer produziert besonders wenig Restmüll?';
+        	ph2questions[6] = 'Bei wem werden besonders wenig Flaschen verbraucht?';
+        	ph2questions[7] = 'XXX?';
+        	ph2questions[8] = 'XXX?';
+        	ph2questions[9] = 'XXX';
 
 		}
 		
@@ -446,7 +490,8 @@
 
 			pointsText = game.add.text(750, 20, "", style);
             pointsText.setText(gamePoints);
-
+            questionsText.visible = true;
+            questionsText.setText(questCount);
 			if(charNo == 2 || charNo == 3)
 			{
 				bubble1_1.visible = false;
@@ -560,6 +605,29 @@
 			}
 			table[charNo][0]++;
 			return getAttributeString(charNo, attrNo);
+
+		}
+
+		function addNewLineAtSpace(string, maxRowLength){
+			var stringNoCount = 0;
+			var strings = string.split(' ');
+			var finalString = '';
+			var lineCounter = 0;
+
+			while(stringNoCount != strings.length){
+				if(finalString.length + strings[stringNoCount].length - lineCounter*maxRowLength < maxRowLength){
+					finalString = finalString + ' ' + strings[stringNoCount];
+					stringNoCount++;
+				}
+				else{
+					finalString = finalString + '\n' + strings[stringNoCount];
+					lineCounter++;
+					stringNoCount++;
+				}
+			}
+
+			return finalString;
+
 		}
 
 		function introduceNewQuestion(){
@@ -572,8 +640,8 @@
 			var counter = 0;
 
 			gameProgress++;
-			//gameButton.input = false;
-			//gameButton.visible = false;
+			questCount++;
+			questionsText.setText(questCount + '/' + questionsAsked);
 
 			for(i = 0; i < 5; i++){
 				for(p = 1; p < 9; p++){
@@ -633,25 +701,25 @@
 			    questionString = "Wie alt bin ich?";
 			    break;
 			case 3:
-			    questionString = "Was ist mein Beruf?";
+			    questionString = "Als was bzw. wo arbeite ich noch?";
 			    break;
 			case 4:
-			    questionString = "Was ist mein Hobby?";
+			    questionString = "Welchen Sport übe ich aus?";
 			    break;
 			case 5:
 			    questionString = "Was esse ich gewöhnlich zu Mittag?";
 			    break;
 			case 6:
-			    questionString = "Was mache ich in meiner Freizeit?";
+			    questionString = "Was hab ich noch für ein Hobby?";
 			    break;
 			case 7:
 			    questionString = "Was esse ich gewöhnlich zu Abend?";
 			    break;
 			case 8:
-			    questionString = "Was muss man über mich wissen?";
+			    questionString = "Was hab ich dir spezielles über mich erzählt?";
 			    break;
 			    }
-
+			questionString = addNewLineAtSpace(questionString,40);
 			createSmallButtons(arr[0], arr[1]);
 
 			solutionButton1.input = true;
@@ -700,7 +768,7 @@
 			buttonArray[0][1] = 1;
 			buttonArray[0][2] = randNo;
 
-			if(attrNo == 1){
+			if(attrNo == 1){//namen
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,14);
 					fillerString = names[randNo];
@@ -736,7 +804,7 @@
 				}
 			}
 
-			if(attrNo == 2){
+			if(attrNo == 2){//alter
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,24);
 					fillerString = ages[randNo];
@@ -772,7 +840,7 @@
 				}
 			}
 
-			if(attrNo == 3){
+			if(attrNo == 3){//job
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,14);
 					if(charNo == 1 || charNo == 3){
@@ -817,7 +885,7 @@
 				}
 			}
 
-			if(attrNo == 4){
+			if(attrNo == 4){//sport
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,19);
 					fillerString = sports[randNo];
@@ -828,7 +896,7 @@
 						fillerString = sports[randNo];
 
 						for(p = 0; p < buttonArray.length-1; p++){
-							if(buttonArray[p][0] != 0 && buttonArray[p][0] == fillerString){	
+							if(buttonArray[p][0] != 0 && buttonArray[p][0].charAt(0) == fillerString.charAt(0)){	
 								flag = 0;
 							}
 						}	
@@ -854,7 +922,7 @@
 			}
 
 
-			if(attrNo == 5){
+			if(attrNo == 5){//mittag
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,9);
 					fillerString = launches[randNo];
@@ -865,7 +933,7 @@
 						fillerString = launches[randNo];
 
 						for(p = 0; p < buttonArray.length-1; p++){
-							if(buttonArray[p][0] != 0 && buttonArray[p][0] == fillerString){	
+							if(buttonArray[p][0] != 0 && buttonArray[p][0].charAt(0) == fillerString.charAt(0)){	
 								flag = 0;
 							}
 						}	
@@ -890,7 +958,7 @@
 				}
 			}
 
-			if(attrNo == 6){
+			if(attrNo == 6){//hobby
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,14);
 					fillerString = hobbies[randNo];
@@ -901,7 +969,7 @@
 						fillerString = hobbies[randNo];
 
 						for(p = 0; p < buttonArray.length-1; p++){
-							if(buttonArray[p][0] != 0 && buttonArray[p][0] == fillerString){	
+							if(buttonArray[p][0] != 0 && buttonArray[p][0].charAt(0) == fillerString.charAt(0)){	
 								flag = 0;
 							}
 						}	
@@ -926,7 +994,7 @@
 				}
 			}
 
-			if(attrNo == 7){
+			if(attrNo == 7){//abendessen
 				for(i = 1; i < buttonArray.length; i++){
 					randNo = getRandomInt(0,9);
 					fillerString = dinners[randNo];
@@ -937,7 +1005,7 @@
 						fillerString = dinners[randNo];
 
 						for(p = 0; p < buttonArray.length-1; p++){
-							if(buttonArray[p][0] != 0 && buttonArray[p][0] == fillerString){	
+							if(buttonArray[p][0] != 0 && buttonArray[p][0].charAt(0) == fillerString.charAt(0)){	
 								flag = 0;
 							}
 						}	
@@ -1287,137 +1355,319 @@
 
 
     	function gameForward(){
-    		if(questOrAttCount >= 3){
-    			gameButton.frame = 0;
-    		}
-    		
-    		timeLeftTimer.pause();
-    		timeLeftText.visible = false;
-    		timerPic.visible = false;
+    		if(questCount < questionsAsked){ //phase 1
+	    		if(questOrAttCount >= 3){
+	    			gameButton.frame = 0;
+	    		}
+	    		
+	    		timeLeftTimer.pause();
+	    		timeLeftText.visible = false;
+	    		timerPic.visible = false;
 
-    		if(attrCounter >= 40){
-    			questOrAttCount = 3;
-    		}
+	    		if(attrCounter >= 40){
+	    			questOrAttCount = 3;
+	    		}
 
-    		if(questOrAttCount < 3){
-	    			var attributeString;
+	    		if(questOrAttCount < 3){
+		    			var attributeString;
 
-		    		if(tempCharCount == 2){
-		    			tempCharNo = getNextCharInt();
-		    			tempCharCount = 0;
-		    		}
+			    		if(tempCharCount == 2){
+			    			tempCharNo = getNextCharInt();
+			    			tempCharCount = 0;
+			    		}
 
-		    		attributeString = introduceNewAttributes(tempCharNo);
-		    		tempCharCount++;
+			    		attributeString = introduceNewAttributes(tempCharNo);
+			    		tempCharCount++;
 
-					if(tempCharNo == 2 || tempCharNo == 3)
-					{
-						text_2.setText(attributeString);
-						text_1.visible = false;
-						text_2.visible = true;
+						if(tempCharNo == 2 || tempCharNo == 3)
+						{
+							text_2.setText(attributeString);
+							text_1.visible = false;
+							text_2.visible = true;
+						}
+						else
+						{
+							text_1.setText(attributeString);
+							text_2.visible = false;
+							text_1.visible = true;						
+						}	
+			    		questOrAttCount++;
+				}
+				else{
+					introduceNewQuestion();
+					questOrAttCount++;
+					if(questOrAttCount == 5){
+						questOrAttCount = 1;
 					}
-					else
-					{
-						text_1.setText(attributeString);
-						text_2.visible = false;
-						text_1.visible = true;						
-					}	
-		    		questOrAttCount++;
-			}
-			else{
-				introduceNewQuestion();
-				questOrAttCount++;
-				if(questOrAttCount == 5){
-					questOrAttCount = 1;
 				}
 			}
+			else{ //phase2
+				if(ph2questionCount == 0){
+					endPh1();
+					ph2QuestionText.visible;
+				}
 
+				introducePh2Question();
+			}
+    	}
+
+    	function introducePh2Question(){
+    		gameButton.input = false;
+    		gameButton.visible = false;
+
+    		saschaHead.visible = true;
+    		saschaHead.input = true;
+    		emmanuelHead.visible = true;
+    		emmanuelHead.input = true;
+    		jennyHead.visible = true;
+    		jennyHead.input = true;
+    		marleneHead.visible = true;
+    		marleneHead.input = true;
+    		mariusHead.visible = true;
+    		mariusHead.input = true;
+    		table.visible = true;
+
+
+    		ph2QuestionText.setText(ph2questions[ph2questionCount]);
+    		ph2questionCount++;
+
+    	}
+
+    	function ph2CheckSolution(button) {
+    		switch(ph2questionCount){
+    			case 1:
+    				if(button.name == 'emmanuel'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 2:
+    				if(button.name == 'marius'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 3:
+    				if(button.name == 'marlene' || button.name == 'jenny'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 4:
+    				if(button.name == 'marius'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 5:
+    				if(button.name == 'emmanuel'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 6:
+    				if(button.name == 'jenny'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			gameForward();
+    			break;
+    			case 7:
+    				if(button.name == 'sascha'){
+    					alert("true");
+    				}
+    				else{
+    					alert('false');
+    				}
+    			alert('ende');
+    			break;
+    		}
+
+    	}
+
+    	function endPh1(){
+					emmanuel.visible = false;
+					marlene.visible = false;
+					sascha.visible = false;
+					jenny.visible = false;
+					marius.visible = false;
+
+					text_1.visible = false;
+					text_2.visible = false;
+
+					bubble1_1.visible = false;
+					bubble1_2.visible = false;
     	}
 
     	function getAttributeString(charNo, attrNo){
     		var randNo = getRandomInt(0,2);
+    		var attributeString;
+    		var signsPerRow = 30;
+    		var attributeString = '';
     		switch (attrNo) {
     			case 1:
     				switch (randNo){
     					case 0:
-    						return "Hey!\nIch heiße " + table[charNo][attrNo][0] + ".";
+    						attributeString =  "Hey!\n" + addNewLineAtSpace("Ich heiße " + table[charNo][attrNo][0] + ".",signsPerRow);
+    						break;
     					case 1:
-    						return "Moin!\nIch heiße " + table[charNo][attrNo][0] + ".";
+    						attributeString =  "Moin!\n" + addNewLineAtSpace("Ich bin " + table[charNo][attrNo][0] + ".",signsPerRow);
+    						break;
     					case 2:
-    						return "Hallo!\nDu kannst mich " + table[charNo][attrNo][0] + " nennen.";
+    						attributeString = "Hallo!\n" + addNewLineAtSpace("Du kannst mich " + table[charNo][attrNo][0] + " nennen.",signsPerRow);
+    						break;
     				}
+    				break;
     			case 2:
     				switch (randNo){
     					case 0:
-    						return "Ich bin " + table[charNo][attrNo][0] + " Jahre alt.";
+    						attributeString = addNewLineAtSpace("Ich bin " + table[charNo][attrNo][0] + " Jahre alt.",signsPerRow);
+    						break;
     					case 1:
-    						return "Ich werde nächsten Monat " + (table[charNo][attrNo][0]+1) + ".";
+    						attributeString = addNewLineAtSpace("Ich werde nächsten Monat " + (table[charNo][attrNo][0]+1) + ".",signsPerRow);
+    						break;
     					case 2:
-    						return "Ich bin " + table[charNo][attrNo][0] + " Jahre jung.";
+    						attributeString = addNewLineAtSpace("Ich bin " + table[charNo][attrNo][0] + " Jahre jung.",signsPerRow);
+    						break;
     				}
+    				break;
     			case 3:
-    				switch (randNo){
-    					case 0:
-    						return "Mein Geld verdiene ich als " + table[charNo][attrNo][0] + ".";
-    					case 1:
-    						return "Ich arbeite als " + table[charNo][attrNo][0] + ".";
-    					case 2:
-    						return "Ich bin " + table[charNo][attrNo][0] + ".";
+    				if(table[charNo][attrNo][0] == 'Getränkemarkt'){
+	    				if(charNo == 1 || charNo == 3){
+	    					attributeString = addNewLineAtSpace("Mein Geld verdiene ich als Angestellte in einem " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    				}
+	    				else{
+	    					attributeString = addNewLineAtSpace("Mein Geld verdiene ich als Angestellter in einem " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    				}
     				}
+    				else if(table[charNo][attrNo][0] == 'Mutter' || table[charNo][attrNo][0] == 'Vater'){
+    					attributeString = addNewLineAtSpace("Ich bin " + table[charNo][attrNo][0] + " von 2 Töchtern auf die ich Tagsüber aufpasse.",signsPerRow);		
+    				}
+    				else{
+	    				switch (randNo){
+	    					case 0:
+	    						attributeString = addNewLineAtSpace("Mein Geld verdiene ich als " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    					case 1:
+	    						attributeString = addNewLineAtSpace("Ich arbeite als " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    					case 2:
+	    						attributeString = addNewLineAtSpace("Ich bin " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    				}
+    				}
+    				break;
     			case 4:
-    				switch (randNo){
-    					case 0:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 1:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 2:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    				if(table[charNo][attrNo][0] == 'Nichts'){
+    					attributeString = addNewLineAtSpace("Um mich fit zu halten mache ich eigentlich nichts.",signsPerRow);
     				}
+    				else if(table[charNo][attrNo][0] == 'Robotorkämpfe'){
+    					attributeString = addNewLineAtSpace("Mein Sport sind Robotorkämpfe die ich alle 2 Wochen austrage.",signsPerRow);
+    				}
+    				else{
+	    				switch (randNo){
+	    					case 0:
+	    						attributeString = addNewLineAtSpace("Um mich fit zu halten gehe ich regelmäßig zum " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    					case 1:
+	    						attributeString = addNewLineAtSpace("Ich halte mich fit indem ich zum " + table[charNo][attrNo][0] + " gehe.",signsPerRow);
+	    						break;
+	    					case 2:
+	    						attributeString = addNewLineAtSpace("Ich bin sportlich und gehe sehr oft zum " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    				}
+    				}
+    				break;
     			case 5:
-    				switch (randNo){
-    					case 0:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 1:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 2:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    				if(table[charNo][attrNo][0] == 'Kantine'){
+    					if(randNo == 0){
+    						attributeString = addNewLineAtSpace("Mittags esse ich meistens etwas in der Kantine.",signsPerRow);
+    					}
+    					else{
+    						attributeString = addNewLineAtSpace("Für gewöhnlich esse ich Mittags in der Kantine.",signsPerRow);
+    					}
     				}
-
+    				else if(table[charNo][attrNo][0] == 'Restaurant'){
+    					attributeString = addNewLineAtSpace("Mittags esse ich etwas in einem Restaurant.",signsPerRow);
+    				}
+    				else if(table[charNo][attrNo][0] == 'Selbstgekochtes'){
+    					attributeString = addNewLineAtSpace("Bei uns gibt es zu Mittag immer Selbstgekochtes.",signsPerRow);
+    				}
+    				else{
+    					attributeString = addNewLineAtSpace("Mittags bestelle ich mir etwas bei einem Lieferservice.",signsPerRow);
+    				}
+    				break;
     			case 6:
-    				switch (randNo){
-    					case 0:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 1:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 2:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+					if(table[charNo][attrNo][0] == 'Nachtwandern'){
+  						attributeString = addNewLineAtSpace("Wenn ich die Zeit finde gehe ich oft mit meinen Freunden Nachtwandern",signsPerRow);
     				}
-
+    				else if(table[charNo][attrNo][0] == 'Cosplay'){
+    					attributeString = addNewLineAtSpace("Meine Leidenschaft ist Cosplay, dabei entwirft man Kostüme und verkleidet sich zu Figuren aus Spielen und Serien.",signsPerRow);
+    				}
+    				else if(table[charNo][attrNo][0] == 'Theater'){
+    					attributeString = addNewLineAtSpace("Ich sehe mir sehr gerne Theaterstücke an.",signsPerRow);
+    				}
+    				else if(table[charNo][attrNo][0] == 'Basteln'){
+    					attributeString = addNewLineAtSpace("Ich und meine Töchter basteln sehr gerne.",signsPerRow);
+    				}
+    				else{
+    					attributeString = addNewLineAtSpace("Ich sehe mir ziemlich jedes Fussballspiel an.",signsPerRow);
+    				}
+    				break;
     			case 7:
     				switch (randNo){
     					case 0:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    						attributeString = addNewLineAtSpace("Bei mir gibt es Abends " + table[charNo][attrNo][0] + ".",signsPerRow);
+    						break;
     					case 1:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    						attributeString = addNewLineAtSpace("An einem normalen Abend esse ich " + table[charNo][attrNo][0] + ".",signsPerRow);
+    						break;
     					case 2:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    						attributeString = addNewLineAtSpace("Meistens esse ich zu Abend " + table[charNo][attrNo][0] + ".",signsPerRow);
+    						break;
     				}
-
+    				break;
     			case 8:
-    				switch (randNo){
-    					case 0:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 1:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
-    					case 2:
-    						return "Ich halte mich fit indem ich " + table[charNo][attrNo][0] + ".";
+    				if(table[charNo][attrNo][0] == 'Kompost'){
+  						attributeString = addNewLineAtSpace("Wir haben bei uns einen Kompost in dem ich den meisten Abfall loswerde",signsPerRow);
     				}
-
-
+    				else if(table[charNo][attrNo][0] == 'Prinzessin'){
+    					attributeString = addNewLineAtSpace("Meine Kollegen nennen mich manchmal Prinzessin, weil ich soviele verschiedene Kleider anziehe.",signsPerRow);
+    				}
+    				else{
+	    				switch (randNo){
+	    					case 0:
+	    						attributeString = addNewLineAtSpace("Ich bin ein totaler " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    					case 1:
+	    						attributeString = addNewLineAtSpace("Freunde nennen mich: Den " + table[charNo][attrNo][0] + ".",signsPerRow);
+	    						break;
+	    					case 2:
+	    						attributeString = addNewLineAtSpace("Oft werde ich " + table[charNo][attrNo][0] + " genannt.",signsPerRow);
+	    						break;
+	    				}
+    				}
     		}
-
-    		return 'yeah';
+    		return attributeString;
     	}
+
     	function decTimeLeft(){
     		timeLeft--;
     		timeLeftText.setText(timeLeft);
