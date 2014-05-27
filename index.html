@@ -98,6 +98,7 @@
         var questionSolvedSecondStep = 25;
         var pointsPerSecondLeft = 1;
         var questionsAsked = 10;
+        var pointsPh2Question = 30;
 
 
         // Vars Phase 1
@@ -172,6 +173,9 @@
 
             questionsText = game.add.text(750, 40, "", style);
             ph2QuestionText = game.add.text(200, 320, "", style);
+            ph2SolutionText = game.add.text(200, 400, "", style);
+            ph2SolutionText2 = game.add.text(200, 500, "", style);
+
 
             timeLeftText = game.add.text(550, 25, "", style);
             timeLeftText.visible = false;
@@ -462,7 +466,7 @@
         	ph2questions[1] = 'Bei wem bleibt besonders viel Verpackungsmüll über?';
         	ph2questions[2] = 'Wer produziert besonders viel Stoffmüll/Papiermüll?';
         	ph2questions[3] = 'Bei wem wird besonders viel Glasmüll produziert?';
-        	ph2questions[4] = 'Wer verbraucht besonders viele Glühlampen und Akkus?';
+        	ph2questions[4] = 'Wer verbraucht besonders viele Glühbirnen und Batterien?';
         	ph2questions[5] = 'Wer produziert besonders wenig Restmüll?';
         	ph2questions[6] = 'Bei wem werden besonders wenig Flaschen verbraucht?';
         	ph2questions[7] = 'XXX?';
@@ -1427,76 +1431,118 @@
     		mariusHead.input = true;
     		table.visible = true;
 
+    		ph2SolutionText.visible = false;
+    		ph2SolutionText2.visible = false;
 
+    		ph2QuestionText.visible = true;
     		ph2QuestionText.setText(ph2questions[ph2questionCount]);
     		ph2questionCount++;
 
     	}
 
+    	function hidePh2Question(){
+    		ph2QuestionText.visible = false;
+
+    		saschaHead.input = false;
+    		saschaHead.visible = false;
+    		emmanuelHead.visible = false;
+    		emmanuelHead.input = false;
+    		jennyHead.visible = false;
+    		jennyHead.input = false;
+    		marleneHead.visible = false;
+    		marleneHead.input = false;
+    		mariusHead.visible = false;
+    		mariusHead.input = false;	
+    	}
+
     	function ph2CheckSolution(button) {
+    		hidePh2Question();
+    		ph2SolutionText.visible = true;
+    		ph2SolutionText2.visible = true;
     		switch(ph2questionCount){
     			case 1:
     				if(button.name == 'emmanuel'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Als Informatiker der Robotorkämpfe betreibt fällt vermutlich besonders viel Elektromüll an.',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Elektromüll fällt bei Informatikern oder Robotorkämpfen an.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n-Elektronik kauft die möglichst Recyclebar ist\n-Versucht Dinge zu repairieren anstatt sie neu zu kaufen');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 2:
-    				if(button.name == 'marius'){
-    					alert("true");
+    				if(button.name == 'marius' || button.name == 'emmanuel'){
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Bei Fertigprodukten und Lieferservicen fällt besonders viel Verpackungsmüll an',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Verpackungsmüll fällt bei Fertigprodukten und Lieferservicen an.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n' + '-Unverpackte Lebensmittel wie friches Obst,Gemüse\nund Fleich kauft\n-Wenn möglich Familienpackungen kauft');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 3:
     				if(button.name == 'marlene' || button.name == 'jenny'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Beim Verkleidungen herstellen(Cosplay) und Basteln fällt besonders viel Verpackungsmüll an.',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Stoff/Papier fällt bei Cosplay(Verkleidungen) und beim Basteln an.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n' + '-Stoff- und Papierreste versucht an anderer Stelle\nnoch zu verwenden');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 4:
     				if(button.name == 'marius'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Da Marius ein Glasflaschentrinker ist fällt besonders viel Glasmüll an.',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Glasflaschen fallen bei Marius dem Glasflaschentrinker an.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Der Glasmüll kann verringert werden indem man:\n' + '-Nur Glasflaschen kauft, auf denen das Mehrweg Zeichen ist\n');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 5:
     				if(button.name == 'emmanuel'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Beim Nachtwandern werden besonders viele Batterien und Glühbirnen verbraucht.',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Batterien und Glühbirnen fallen beim Nachtwandern an.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Glühbirnen und Batterien können verringert werden indem man:\n' + '-Energiesparglühbirnen kauft, am besten vollständig recyclebare\n-Wiederaufladbare Akkus statt Batterien verwendet');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 6:
     				if(button.name == 'jenny'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Besonders wenig Restmüll produziert Jenny, da sie einen Kompost besitzt.',70));
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders wenig Restmüll produziert Jenny, da sie einen Kompost besitzt.',70));
     				}
-    			gameForward();
+    			ph2SolutionText2.setText('Wenn man einen Kompost besitzt kann man dort alle natürlich\nabbaubaren Reste loswerden, zB. Essensreste oder Taschentücher.');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     			case 7:
     				if(button.name == 'sascha'){
-    					alert("true");
+    					gamePoints = gamePoints + pointsPh2Question;
+    					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Besonders wenig Flaschen fallen bei Sascha an, da er nur Leitungswasser trinkt.',70));	
     				}
     				else{
-    					alert('false');
+    					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders wenig Flaschen fallen bei Sascha an, da er nur Leitungswasser trinkt.',70));
     				}
-    			alert('ende');
+    			ph2SolutionText2.setText('Durch das trinken von Leitungswasser kann man komplett\nauf Flaschen schleppen verzichten und erzeugt weniger Müll!');
+    			gameButton.visible = true;
+    			gameButton.input = true;
     			break;
     		}
 
