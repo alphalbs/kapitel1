@@ -14,9 +14,12 @@
         var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create });
 
         function preload () {
+        	var style = { font: "34px Segopr", fill: "#000000", align: "left" };
 
+        	loadingText = game.add.text(game.world.centerX, game.world.centerY , "Es lädt...", style);
+        	loadingText.visible = true;
             game.load.image('imgCh1Background', 'assets/chap1_background.jpg');
-			
+
             game.load.image('imgSascha', 'assets/sascha.png');
             game.load.image('imgEmmanuel', 'assets/emmanuel.png');
             game.load.image('imgJenny', 'assets/jenny.png');
@@ -52,7 +55,7 @@
 			game.load.audio('falseError', 'assets/falseError.ogg');
 			game.load.audio('pageTurn', 'assets/pageTurn.ogg');
 			game.load.audio('knock', 'assets/knock.ogg');
-
+			loadingText.visible = false;
         }
 
         //Bilder
@@ -497,7 +500,6 @@
         	ph2questions[7] = 'XXX?';
         	ph2questions[8] = 'XXX?';
         	ph2questions[9] = 'XXX';
-
 		}
 		
 		function startGame() {
@@ -697,7 +699,7 @@
 			for(i = 0; i < 5; i++){
 				for(p = 1; p < 9; p++){
 					if(table[i][p][1]){
-						if( table[i][p][2] == min || table[i][p][2] == min ){ // evtl. min+1 fuer etwas mehr Vielfalt bei den Fragen und hoehere Schwierigkeit
+						if( table[i][p][2] == min || table[i][p][2] == min + 1 ){ // evtl. min+1 fuer etwas mehr Vielfalt bei den Fragen und hoehere Schwierigkeit
 							var arr = new Array();
 							arr[0] = i;
 							arr[1] = p;
