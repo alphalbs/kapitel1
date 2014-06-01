@@ -40,14 +40,18 @@
 
 			game.load.image('imgSmallTrophy', 'assets/trophy_small.png');
 			game.load.image('imgSmallTimer', 'assets/timer.png');
+			game.load.image('imgQuestion', 'assets/question.png');
 			
 			game.load.spritesheet('buttonStart', 'assets/start.png',87,0);			
             game.load.spritesheet('button1', 'assets/arrow_next.png',71,0);
 
-            game.load.image('smallAnswerButton', 'assets/smallAnswerButton.png');
-			game.load.spritesheet('bigAnswerButton', 'assets/large_button.png',125,0);
-            
-
+            game.load.spritesheet('smallAnswerButton', 'assets/button_small_hover.png',60,0);
+			game.load.spritesheet('bigAnswerButton', 'assets/button_big_hover.png',250,0);
+			
+			game.load.audio('clapping', 'assets/clapping.ogg');
+			game.load.audio('falseError', 'assets/falseError.ogg');
+			game.load.audio('pageTurn', 'assets/pageTurn.ogg');
+			game.load.audio('knock', 'assets/knock.ogg');
 
         }
 
@@ -97,13 +101,18 @@
         var questionSolvedFirstStep = 30;
         var questionSolvedSecondStep = 25;
         var pointsPerSecondLeft = 1;
-        var questionsAsked = 10;
+        var questionsAsked = 40;
         var pointsPh2Question = 30;
 
+        var pointsForBronze = 200;
+        var pointsForSilver = 500;
+        var pointsForGold = 900;
 
-        // Vars Phase 1
+
+        // Vars Phase 1,2
         var gamePoints = 0;
         var gameProgress = 0;
+        var gameOverFlag = 0;
         var attrCounter = 0;
         var phase = 1;
         var introducedAttributes = 0;
@@ -116,8 +125,6 @@
         var buttonArray = new Array(6);
         var timeLeft;
         var timeLeftTimer;
-
-        //Vars Phase 2
         var ph2questionCount = 0;
 
 
@@ -126,6 +133,11 @@
     		
             var background = game.add.sprite(game.world.centerX, game.world.centerY, 'imgCh1Background');
 			background.anchor.setTo(0.5, 0.5);
+
+			clapping = game.add.audio('clapping');
+            falseSound = game.add.audio('falseError');
+            pageTurn = game.add.audio('pageTurn');
+            knock = game.add.audio('knock');
 
 			instruction_1 = game.add.sprite(80, 170, 'imgStartAllSmall');
 			instruction_2 = game.add.sprite(390, 152, 'imgStartAsk');
@@ -136,33 +148,40 @@
 			instruction_text_3 = game.add.text(565, 300 , "... und das in möglichst\n kurzer Zeit.", style);
 			
             startbutton = game.add.button(game.world.centerX-40, 450, 'buttonStart', startGame, 0, 1 , 0, 1);
+            startbutton.onOverSound = knock;
 
             solutionButton1 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this, 1 ,0, 1, 0);
+            solutionButton1.onOverSound = knock;
             solutionButton1.name = 1;
 	    	solutionButton1.answer = false;
 	    	solutionButton1.visible = false;
 
 	    	solutionButton2 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this, 1 ,0 , 1, 0);
+	    	solutionButton2.onOverSound = knock;
 	    	solutionButton2.name = 2;
 	    	solutionButton2.answer = false;
 	    	solutionButton2.visible = false;
 
 	    	solutionButton3 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this, 1 ,0, 1, 0);
+	    	solutionButton3.onOverSound = knock;
 	    	solutionButton3.name = 3;
 	    	solutionButton3.answer = false;
 	    	solutionButton3.visible = false;
 
 	    	solutionButton4 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this ,1 ,0, 1, 0);
+	    	solutionButton4.onOverSound = knock;
 	    	solutionButton4.name = 4;
 	    	solutionButton4.answer = false;
 	    	solutionButton4.visible = false;
 
 	    	solutionButton5 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this ,1 ,0, 1, 0);
+	    	solutionButton5.onOverSound = knock;
 	    	solutionButton5.name = 5;
 	    	solutionButton5.answer = false;
 	    	solutionButton5.visible = false;
 
 	    	solutionButton6 = game.add.button(0, 0, 'smallAnswerButton', checkSolution, this ,1 ,0, 1, 0);
+	    	solutionButton6.onOverSound = knock;
 	    	solutionButton6.name = 6;
 	    	solutionButton6.answer = false;
 	    	solutionButton6.visible = false;
@@ -171,7 +190,7 @@
             text = game.add.text(game.world.centerX + 50, game.world.centerY - 200, "dasd", style);
             text.visible = false;
 
-            questionsText = game.add.text(750, 40, "", style);
+            questionsText = game.add.text(623, 20, "", style);
             ph2QuestionText = game.add.text(200, 320, "", style);
             ph2SolutionText = game.add.text(200, 400, "", style);
             ph2SolutionText2 = game.add.text(200, 500, "", style);
@@ -184,11 +203,11 @@
 		   	timeLeftTimer.loop(1000, decTimeLeft, this);
 		   	timeLeftTimer.start();
 
-        	sascha = game.add.sprite(540, 120, 'imgSascha');
-        	marlene = game.add.sprite(130, 140, 'imgMarlene');
-			emmanuel = game.add.sprite(130, 140, 'imgEmmanuel');
-			jenny = game.add.sprite(540, 140, 'imgJenny');
-			marius = game.add.sprite(130, 140, 'imgMarius');
+        	sascha = game.add.sprite(540, 125, 'imgSascha');
+        	marlene = game.add.sprite(125, 145, 'imgMarlene');
+			emmanuel = game.add.sprite(125, 145, 'imgEmmanuel');
+			jenny = game.add.sprite(540, 145, 'imgJenny');
+			marius = game.add.sprite(125, 145, 'imgMarius');
 
 			saschaHead = game.add.button(300, 400, 'imgSaschaHead', ph2CheckSolution, this,1 ,0, 1, 0);
 			saschaHead.name = 'sascha';
@@ -201,7 +220,7 @@
 			mariusHead = game.add.button(500, 400, 'imgMariusHead', ph2CheckSolution, this,1 ,0, 1, 0);
 			mariusHead.name = 'marius';
 
-			table = game.add.sprite(30, 30, 'imgTable');
+			table = game.add.sprite(30, 60, 'imgTable');
 			table.visible = false;
 
 			marius.visible = false;
@@ -225,7 +244,7 @@
 			bubble1_1 = game.add.sprite(230, 60, 'bubble1');
 			bubble1_1.visible = false;
 			
-			bubble1_2 = game.add.sprite(140, 60, 'bubble2');
+			bubble1_2 = game.add.sprite(135, 60, 'bubble2');
 			bubble1_2.visible = false;			
 			
 			text_1 = game.add.text(315, 115, "Ich heiße Marius", style);
@@ -234,11 +253,17 @@
 			text_2 = game.add.text(195, 110, "Ich heiße Marius", style);
             text_2.visible = false;	
 
-            timerPic = game.add.sprite(517, 13, 'imgSmallTimer');
+            timerPic = game.add.sprite(457, 13, 'imgSmallTimer');
 			timerPic.visible = false;
 			
-			timeLeftText = game.add.text(550, 20, "", style);
+            questionPic = game.add.sprite(582, 14, 'imgQuestion');
+			questionPic.visible = false;			
+			
+			timeLeftText = game.add.text(500, 20, "", style);
             timeLeftText.visible = false;
+
+            endText = game.add.text(game.world.centerX, game.world.centerY , "GG", style);
+            endText.visible = false;
 
 			for (var i = 0; i < 5; ++i){
   				table[i] = new Array(9);
@@ -476,6 +501,7 @@
 		}
 		
 		function startGame() {
+			pageTurn.play();
 			var charNo = getNextCharInt();
 			tempCharNo = charNo;
 			tempCharCount = 1;
@@ -495,6 +521,7 @@
 			pointsText = game.add.text(750, 20, "", style);
             pointsText.setText(gamePoints);
             questionsText.visible = true;
+			questionPic.visible = true;
             questionsText.setText(questCount);
 			if(charNo == 2 || charNo == 3)
 			{
@@ -509,6 +536,8 @@
 
 
 	    	gameButton = game.add.button(650, 500, 'button1', gameForward, 0, 1 , 0, 1);
+	    	gameButton.onOverSound = knock;
+	    	gameButton.input = false;
 
 	    	attributeString = introduceNewAttributes(charNo);
 			if(charNo == 2 || charNo == 3)
@@ -1081,11 +1110,11 @@
 
 			var solButtonStyle = { font: "20px Arial", fill: "#ff0044", align: "center" };
 
-			var textXAdd = 25;
-			var textYAdd = 12;
+			var textXAdd = 27;
+			var textYAdd = 15;
 
-			xPos = getSolButtonX(buttonArray[0][2], 0);
-			yPos = getSolButtonY(buttonArray[0][2], 0);
+			xPos = getSolButtonX(buttonArray[0][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[0][2], 0, charNo);
 			solutionButton1.loadTexture('smallAnswerButton', 0 ,1);
 			solutionButton1.reset(xPos,yPos);
 			solutionButton1.answer = true;
@@ -1100,8 +1129,8 @@
             	text1 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[0][0].charAt(0), solButtonStyle);
 	  		}
 
-	    	xPos = getSolButtonX(buttonArray[1][2], 0);
-			yPos = getSolButtonY(buttonArray[1][2], 0);	
+	    	xPos = getSolButtonX(buttonArray[1][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[1][2], 0, charNo);	
 			solutionButton2.loadTexture('smallAnswerButton', 0 ,1, 0, 1);	
 			solutionButton2.reset(xPos,yPos)
 	    	solutionButton2.answer = false;
@@ -1116,8 +1145,8 @@
 	    		text2 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[1][0].charAt(0), solButtonStyle);
 	    	}
 
-	    	xPos = getSolButtonX(buttonArray[2][2], 0);
-			yPos = getSolButtonY(buttonArray[2][2], 0);
+	    	xPos = getSolButtonX(buttonArray[2][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[2][2], 0, charNo);
 			solutionButton3.loadTexture('smallAnswerButton', 0 ,1, 0, 1);
 			solutionButton3.reset(xPos,yPos)
 	    	solutionButton3.answer = false;
@@ -1132,8 +1161,8 @@
 	    		text3 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[2][0].charAt(0), solButtonStyle);
 	    	}
 
-			xPos = getSolButtonX(buttonArray[3][2], 0);
-			yPos = getSolButtonY(buttonArray[3][2], 0);
+			xPos = getSolButtonX(buttonArray[3][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[3][2], 0, charNo);
 			solutionButton4.loadTexture('smallAnswerButton', 0 ,1, 0, 1);
 	    	solutionButton4.reset(xPos,yPos)
 	    	solutionButton4.answer = false;
@@ -1148,8 +1177,8 @@
 	    		text4 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[3][0].charAt(0), solButtonStyle);
 	    	}
 
-			xPos = getSolButtonX(buttonArray[4][2], 0);
-			yPos = getSolButtonY(buttonArray[4][2], 0);
+			xPos = getSolButtonX(buttonArray[4][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[4][2], 0, charNo);
 			solutionButton5.loadTexture('smallAnswerButton', 0 ,1, 0, 1);
 	    	solutionButton5.reset(xPos,yPos)
 	    	solutionButton5.answer = false;
@@ -1164,8 +1193,8 @@
 	    		text5 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[4][0].charAt(0), solButtonStyle);
 	    	}
 
-			xPos = getSolButtonX(buttonArray[5][2], 0);
-			yPos = getSolButtonY(buttonArray[5][2], 0);
+			xPos = getSolButtonX(buttonArray[5][2], 0, charNo);
+			yPos = getSolButtonY(buttonArray[5][2], 0, charNo);
 			solutionButton6.loadTexture('smallAnswerButton', 0 ,1, 0, 1);
 	    	solutionButton6.reset(xPos,yPos)
 	    	solutionButton6.answer = false;
@@ -1192,57 +1221,87 @@
 			gameButton.input = false;
 
 			var solButtonStyle = { font: "20px Arial", fill: "#ff0044", align: "center" };
-			var textXAdd = 25;
-			var textYAdd = 12;
+			var textXAdd = 40;
+			var textYAdd = 15;
 
-			xPos = getSolButtonX(buttonArray[0][2], 1);
-			yPos = getSolButtonY(buttonArray[0][2], 1);
-			solutionButton1.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			xPos = getSolButtonX(buttonArray[0][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[0][2], 1, charNo);
+			if(attrNo == 2){
+				solutionButton1.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton1.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}
 	    	solutionButton1.reset(xPos,yPos)
 	    	solutionButton1.answer = true;
 	    	solutionButton1.answerNo = 2;
 	    	solutionButton1.input = true;
 	    	text1 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[0][0], solButtonStyle);
 
-	    	xPos = getSolButtonX(buttonArray[1][2], 1);
-			yPos = getSolButtonY(buttonArray[1][2], 1);	
-			solutionButton2.loadTexture('bigAnswerButton', 0, 1, 0, 1);	
+	    	xPos = getSolButtonX(buttonArray[1][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[1][2], 1, charNo);	
+			if(attrNo == 2){
+				solutionButton2.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton2.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}	
 	    	solutionButton2.reset(xPos,yPos)
 	    	solutionButton2.answer = false;
 	    	solutionButton2.answerNo = 2;
 	    	solutionButton2.input = true;
 	    	text2 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[1][0], solButtonStyle);
 
-	    	xPos = getSolButtonX(buttonArray[2][2], 1);
-			yPos = getSolButtonY(buttonArray[2][2], 1);
-			solutionButton3.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+	    	xPos = getSolButtonX(buttonArray[2][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[2][2], 1, charNo);
+			if(attrNo == 2){
+				solutionButton3.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton3.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}
 	    	solutionButton3.reset(xPos,yPos)
 	    	solutionButton3.answer = false;
 	    	solutionButton3.answerNo = 2;
 	    	solutionButton3.input = true;
 	    	text3 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[2][0], solButtonStyle);
 
-			xPos = getSolButtonX(buttonArray[3][2], 1);
-			yPos = getSolButtonY(buttonArray[3][2], 1);
-			solutionButton4.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			xPos = getSolButtonX(buttonArray[3][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[3][2], 1, charNo);
+			if(attrNo == 2){
+				solutionButton4.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton4.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}
 	    	solutionButton4.reset(xPos,yPos)
 	    	solutionButton4.answer = false;
 	    	solutionButton4.answerNo = 2;
 	    	solutionButton4.input = true;
 	    	text4 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[3][0], solButtonStyle);
 
-			xPos = getSolButtonX(buttonArray[4][2], 1);
-			yPos = getSolButtonY(buttonArray[4][2], 1);
-			solutionButton5.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			xPos = getSolButtonX(buttonArray[4][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[4][2], 1, charNo);
+			if(attrNo == 2){
+				solutionButton5.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton5.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}
 	    	solutionButton5.reset(xPos,yPos)
 	    	solutionButton5.answer = false;
 	    	solutionButton5.answerNo = 2;
 	    	solutionButton5.input = true;
 	    	text5 = game.add.text(xPos + textXAdd, yPos + textYAdd, buttonArray[4][0], solButtonStyle);
 
-			xPos = getSolButtonX(buttonArray[5][2], 1);
-			yPos = getSolButtonY(buttonArray[5][2], 1);
-			solutionButton6.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			xPos = getSolButtonX(buttonArray[5][2], 1, charNo);
+			yPos = getSolButtonY(buttonArray[5][2], 1, charNo);
+			if(attrNo == 2){
+				solutionButton6.loadTexture('smallAnswerButton', 0, 1, 0, 1);
+			}
+			else{
+				solutionButton6.loadTexture('bigAnswerButton', 0, 1, 0, 1);
+			}
 	    	solutionButton6.reset(xPos,yPos)
 	    	solutionButton6.answer = false;
 	    	solutionButton6.answerNo = 2;
@@ -1256,41 +1315,194 @@
 	    	timeLeftText.setText(timeLeft);
 		}
 
-		function getSolButtonY(posNo, whichButton){
-			if(whichButton == 0){ //small
-				if(posNo == 1){return 200}
-				if(posNo == 2){return 300}
-				if(posNo == 3){return 400}
-				if(posNo == 4){return 200}
-				if(posNo == 5){return 300}
-				if(posNo == 6){return 400}
+		function getSolButtonY(posNo, whichButton, charNo){
+			if(whichButton == 0)
+			{ //small	
+				switch(charNo) 
+				{
+					case 0:					
+						if(posNo == 1){return 290}
+						if(posNo == 2){return 370}
+						if(posNo == 3){return 290}
+						if(posNo == 4){return 370}
+						if(posNo == 5){return 290}
+						if(posNo == 6){return 370}							
+						break;
+					case 1:
+						if(posNo == 1){return 290}
+						if(posNo == 2){return 370}
+						if(posNo == 3){return 290}
+						if(posNo == 4){return 370}
+						if(posNo == 5){return 290}
+						if(posNo == 6){return 370}							
+						break;
+					case 2:
+						if(posNo == 1){return 260}
+						if(posNo == 2){return 340}
+						if(posNo == 3){return 260}
+						if(posNo == 4){return 340}
+						if(posNo == 5){return 260}
+						if(posNo == 6){return 340}							
+						break;
+					case 3:
+						if(posNo == 1){return 270}
+						if(posNo == 2){return 350}
+						if(posNo == 3){return 270}
+						if(posNo == 4){return 350}
+						if(posNo == 5){return 270}
+						if(posNo == 6){return 350}							
+						break;
+					case 4:
+						if(posNo == 1){return 290}
+						if(posNo == 2){return 370}
+						if(posNo == 3){return 290}
+						if(posNo == 4){return 370}
+						if(posNo == 5){return 290}
+						if(posNo == 6){return 370}							
+						break;																		
+				} 								
 			}
-			if(whichButton == 1){ //big
-				if(posNo == 1){return 200}
-				if(posNo == 2){return 250}
-				if(posNo == 3){return 300}
-				if(posNo == 4){return 350}
-				if(posNo == 5){return 400}
-				if(posNo == 6){return 450}
+			if(whichButton == 1)
+			{ //big
+				switch(charNo) 
+				{
+					case 0:					
+						if(posNo == 1){return 290}
+						if(posNo == 2){return 370}
+						if(posNo == 3){return 450}
+						if(posNo == 4){return 287}
+						if(posNo == 5){return 367}
+						if(posNo == 6){return 447}							
+						break;
+					case 1:
+						if(posNo == 1){return 280}
+						if(posNo == 2){return 360}
+						if(posNo == 3){return 440}
+						if(posNo == 4){return 277}
+						if(posNo == 5){return 357}
+						if(posNo == 6){return 437}							
+						break;
+					case 2:
+						if(posNo == 1){return 265}
+						if(posNo == 2){return 345}
+						if(posNo == 3){return 425}
+						if(posNo == 4){return 262}
+						if(posNo == 5){return 342}
+						if(posNo == 6){return 422}							
+						break;
+					case 3:
+						if(posNo == 1){return 265}
+						if(posNo == 2){return 345}
+						if(posNo == 3){return 425}
+						if(posNo == 4){return 262}
+						if(posNo == 5){return 342}
+						if(posNo == 6){return 422}						
+						break;
+					case 4:
+						if(posNo == 1){return 285}
+						if(posNo == 2){return 365}
+						if(posNo == 3){return 445}
+						if(posNo == 4){return 283}
+						if(posNo == 5){return 363}
+						if(posNo == 6){return 443}						
+						break;																		
+				} 							
 			}
 		}
 
-		function getSolButtonX(posNo, whichButton){
-			if(whichButton == 0){ //small
-				if(posNo == 1){return game.world.centerX + 200}
-				if(posNo == 2){return game.world.centerX + 200}
-				if(posNo == 3){return game.world.centerX + 200}
-				if(posNo == 4){return game.world.centerX + 100}
-				if(posNo == 5){return game.world.centerX + 100}
-				if(posNo == 6){return game.world.centerX + 100}
+		function getSolButtonX(posNo, whichButton, charNo){
+			if(whichButton == 0)
+			{ //small
+				switch(charNo) 
+				{
+					case 0:
+						if(posNo == 1){return game.world.centerX + 135}
+						if(posNo == 2){return game.world.centerX + 135}
+						if(posNo == 3){return game.world.centerX + 35}
+						if(posNo == 4){return game.world.centerX + 35}
+						if(posNo == 5){return game.world.centerX - 65}
+						if(posNo == 6){return game.world.centerX - 65}							
+						break;
+					case 1:
+						if(posNo == 1){return game.world.centerX + 135}
+						if(posNo == 2){return game.world.centerX + 135}
+						if(posNo == 3){return game.world.centerX + 35}
+						if(posNo == 4){return game.world.centerX + 35}
+						if(posNo == 5){return game.world.centerX - 65}
+						if(posNo == 6){return game.world.centerX - 65}						
+						break;
+					case 2:
+						if(posNo == 1){return game.world.centerX - 25}
+						if(posNo == 2){return game.world.centerX - 25}
+						if(posNo == 3){return game.world.centerX - 125}
+						if(posNo == 4){return game.world.centerX - 125}
+						if(posNo == 5){return game.world.centerX - 225}
+						if(posNo == 6){return game.world.centerX - 225}						
+						break;
+					case 3:
+						if(posNo == 1){return game.world.centerX - 25}
+						if(posNo == 2){return game.world.centerX - 25}
+						if(posNo == 3){return game.world.centerX - 125}
+						if(posNo == 4){return game.world.centerX - 125}
+						if(posNo == 5){return game.world.centerX - 225}
+						if(posNo == 6){return game.world.centerX - 225}						
+						break;
+					case 4:
+						if(posNo == 1){return game.world.centerX + 135}
+						if(posNo == 2){return game.world.centerX + 135}
+						if(posNo == 3){return game.world.centerX + 35}
+						if(posNo == 4){return game.world.centerX + 35}
+						if(posNo == 5){return game.world.centerX - 65}
+						if(posNo == 6){return game.world.centerX - 65}					
+						break;																		
+				} 
 			}
-			if(whichButton == 1){ //big
-				if(posNo == 1){return game.world.centerX + 100}
-				if(posNo == 2){return game.world.centerX + 100}
-				if(posNo == 3){return game.world.centerX + 100}
-				if(posNo == 4){return game.world.centerX + 100}
-				if(posNo == 5){return game.world.centerX + 100}
-				if(posNo == 6){return game.world.centerX + 100}
+			if(whichButton == 1)
+			{ //big
+			
+				switch(charNo) 
+				{
+					case 0:
+						if(posNo == 1){return game.world.centerX - 140}
+						if(posNo == 2){return game.world.centerX - 140}
+						if(posNo == 3){return game.world.centerX - 140}
+						if(posNo == 4){return game.world.centerX + 120}
+						if(posNo == 5){return game.world.centerX + 120}
+						if(posNo == 6){return game.world.centerX + 120}							
+						break;
+					case 1:
+						if(posNo == 1){return game.world.centerX - 140}
+						if(posNo == 2){return game.world.centerX - 140}
+						if(posNo == 3){return game.world.centerX - 140}
+						if(posNo == 4){return game.world.centerX + 120}
+						if(posNo == 5){return game.world.centerX + 120}
+						if(posNo == 6){return game.world.centerX + 120}						
+						break;
+					case 2:
+						if(posNo == 1){return game.world.centerX - 385}
+						if(posNo == 2){return game.world.centerX - 385}
+						if(posNo == 3){return game.world.centerX - 385}
+						if(posNo == 4){return game.world.centerX - 125}
+						if(posNo == 5){return game.world.centerX - 125}
+						if(posNo == 6){return game.world.centerX - 125}						
+						break;
+					case 3:
+						if(posNo == 1){return game.world.centerX - 385}
+						if(posNo == 2){return game.world.centerX - 385}
+						if(posNo == 3){return game.world.centerX - 385}
+						if(posNo == 4){return game.world.centerX - 125}
+						if(posNo == 5){return game.world.centerX - 125}
+						if(posNo == 6){return game.world.centerX - 125}							
+						break;
+					case 4:
+						if(posNo == 1){return game.world.centerX - 140}
+						if(posNo == 2){return game.world.centerX - 140}
+						if(posNo == 3){return game.world.centerX - 140}
+						if(posNo == 4){return game.world.centerX + 120}
+						if(posNo == 5){return game.world.centerX + 120}
+						if(posNo == 6){return game.world.centerX + 120}					
+						break;																		
+				} 			
 			}
 		}
 
@@ -1299,6 +1511,7 @@
     		timeLeftText.visible = false;
     		timerPic.visible = false;
     		if(button.answer == true){
+    			clapping.play();
     			if(button.answerNo == 1){
 	    			destroySolutionButtons();
 
@@ -1322,6 +1535,7 @@
 
     		}
     		else{
+    			falseSound.play();
     			if(button.answerNo == 1){
     				destroySolutionButtons();
     				createBigButtons(button.charNo, button.attrNo);
@@ -1357,86 +1571,96 @@
     		text6.destroy();
     	}
 
-
     	function gameForward(){
-    		if(questCount < questionsAsked){ //phase 1
-	    		if(questOrAttCount >= 3){
-	    			gameButton.frame = 0;
-	    		}
-	    		
-	    		timeLeftTimer.pause();
-	    		timeLeftText.visible = false;
-	    		timerPic.visible = false;
+    		pageTurn.play();
+    		if(gameOverFlag == 1){
+    			//Aufruf vom Hauptmenue
+    		}
+    		else{
+	    		if(questCount < questionsAsked){ //phase 1
+		    		if(questOrAttCount >= 3){
+		    			gameButton.frame = 0;
+		    		}
+		    		
+		    		timeLeftTimer.pause();
+		    		timeLeftText.visible = false;
+		    		timerPic.visible = false;
 
-	    		if(attrCounter >= 40){
-	    			questOrAttCount = 3;
-	    		}
+		    		if(attrCounter >= 40){
+		    			questOrAttCount = 3;
+		    		}
 
-	    		if(questOrAttCount < 3){
-		    			var attributeString;
+		    		if(questOrAttCount < 3){
+			    			var attributeString;
 
-			    		if(tempCharCount == 2){
-			    			tempCharNo = getNextCharInt();
-			    			tempCharCount = 0;
-			    		}
+				    		if(tempCharCount == 2){
+				    			tempCharNo = getNextCharInt();
+				    			tempCharCount = 0;
+				    		}
 
-			    		attributeString = introduceNewAttributes(tempCharNo);
-			    		tempCharCount++;
+				    		attributeString = introduceNewAttributes(tempCharNo);
+				    		tempCharCount++;
 
-						if(tempCharNo == 2 || tempCharNo == 3)
-						{
-							text_2.setText(attributeString);
-							text_1.visible = false;
-							text_2.visible = true;
+							if(tempCharNo == 2 || tempCharNo == 3)
+							{
+								text_2.setText(attributeString);
+								text_1.visible = false;
+								text_2.visible = true;
+							}
+							else
+							{
+								text_1.setText(attributeString);
+								text_2.visible = false;
+								text_1.visible = true;						
+							}	
+				    		questOrAttCount++;
+					}
+					else{
+						introduceNewQuestion();
+						questOrAttCount++;
+						if(questOrAttCount == 5){
+							questOrAttCount = 1;
 						}
-						else
-						{
-							text_1.setText(attributeString);
-							text_2.visible = false;
-							text_1.visible = true;						
-						}	
-			    		questOrAttCount++;
-				}
-				else{
-					introduceNewQuestion();
-					questOrAttCount++;
-					if(questOrAttCount == 5){
-						questOrAttCount = 1;
 					}
 				}
-			}
-			else{ //phase2
-				if(ph2questionCount == 0){
-					endPh1();
-					ph2QuestionText.visible;
-				}
+				else{ //phase2
+					if(ph2questionCount == 0){
+						endPh1();
+						ph2QuestionText.visible;
+					}
 
-				introducePh2Question();
+					introducePh2Question();
+				}
 			}
     	}
 
     	function introducePh2Question(){
-    		gameButton.input = false;
-    		gameButton.visible = false;
+    		if(ph2questionCount == 7){
+    			endGame();
+    		}
+    		else{
+	    		gameButton.input = false;
+	    		gameButton.visible = false;
 
-    		saschaHead.visible = true;
-    		saschaHead.input = true;
-    		emmanuelHead.visible = true;
-    		emmanuelHead.input = true;
-    		jennyHead.visible = true;
-    		jennyHead.input = true;
-    		marleneHead.visible = true;
-    		marleneHead.input = true;
-    		mariusHead.visible = true;
-    		mariusHead.input = true;
-    		table.visible = true;
+	    		saschaHead.visible = true;
+	    		saschaHead.input = true;
+	    		emmanuelHead.visible = true;
+	    		emmanuelHead.input = true;
+	    		jennyHead.visible = true;
+	    		jennyHead.input = true;
+	    		marleneHead.visible = true;
+	    		marleneHead.input = true;
+	    		mariusHead.visible = true;
+	    		mariusHead.input = true;
+	    		table.visible = true;
 
-    		ph2SolutionText.visible = false;
-    		ph2SolutionText2.visible = false;
+	    		ph2SolutionText.visible = false;
+	    		ph2SolutionText2.visible = false;
 
-    		ph2QuestionText.visible = true;
-    		ph2QuestionText.setText(ph2questions[ph2questionCount]);
-    		ph2questionCount++;
+	    		ph2QuestionText.visible = true;
+	    		ph2QuestionText.setText(ph2questions[ph2questionCount]);
+	    		ph2questionCount++;
+    		}
 
     	}
 
@@ -1462,87 +1686,118 @@
     		switch(ph2questionCount){
     			case 1:
     				if(button.name == 'emmanuel'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Als Informatiker der Robotorkämpfe betreibt fällt vermutlich besonders viel Elektromüll an.',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Elektromüll fällt bei Informatikern oder Robotorkämpfen an.',70));
     				}
     			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n-Elektronik kauft die möglichst Recyclebar ist\n-Versucht Dinge zu repairieren anstatt sie neu zu kaufen');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 2:
     				if(button.name == 'marius' || button.name == 'emmanuel'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Bei Fertigprodukten und Lieferservicen fällt besonders viel Verpackungsmüll an',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Verpackungsmüll fällt bei Fertigprodukten und Lieferservicen an.',70));
     				}
     			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n' + '-Unverpackte Lebensmittel wie friches Obst,Gemüse\nund Fleich kauft\n-Wenn möglich Familienpackungen kauft');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 3:
     				if(button.name == 'marlene' || button.name == 'jenny'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Beim Verkleidungen herstellen(Cosplay) und Basteln fällt besonders viel Verpackungsmüll an.',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Stoff/Papier fällt bei Cosplay(Verkleidungen) und beim Basteln an.',70));
     				}
     			ph2SolutionText2.setText('Dieser kann verringert werden indem man:\n' + '-Stoff- und Papierreste versucht an anderer Stelle\nnoch zu verwenden');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 4:
     				if(button.name == 'marius'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Da Marius ein Glasflaschentrinker ist fällt besonders viel Glasmüll an.',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Glasflaschen fallen bei Marius dem Glasflaschentrinker an.',70));
     				}
     			ph2SolutionText2.setText('Der Glasmüll kann verringert werden indem man:\n' + '-Nur Glasflaschen kauft, auf denen das Mehrweg Zeichen ist\n');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 5:
     				if(button.name == 'emmanuel'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Beim Nachtwandern werden besonders viele Batterien und Glühbirnen verbraucht.',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders viel Batterien und Glühbirnen fallen beim Nachtwandern an.',70));
     				}
     			ph2SolutionText2.setText('Glühbirnen und Batterien können verringert werden indem man:\n' + '-Energiesparglühbirnen kauft, am besten vollständig recyclebare\n-Wiederaufladbare Akkus statt Batterien verwendet');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 6:
     				if(button.name == 'jenny'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Besonders wenig Restmüll produziert Jenny, da sie einen Kompost besitzt.',70));
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders wenig Restmüll produziert Jenny, da sie einen Kompost besitzt.',70));
     				}
     			ph2SolutionText2.setText('Wenn man einen Kompost besitzt kann man dort alle natürlich\nabbaubaren Reste loswerden, zB. Essensreste oder Taschentücher.');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
     			break;
     			case 7:
     				if(button.name == 'sascha'){
+    					clapping.play();
     					gamePoints = gamePoints + pointsPh2Question;
+    					pointsText.setText(gamePoints);
     					ph2SolutionText.setText('Richtig!\n' + addNewLineAtSpace('Besonders wenig Flaschen fallen bei Sascha an, da er nur Leitungswasser trinkt.',70));	
     				}
     				else{
+    					falseSound.play();
     					ph2SolutionText.setText('Leider falsch!\n' + addNewLineAtSpace('Besonders wenig Flaschen fallen bei Sascha an, da er nur Leitungswasser trinkt.',70));
     				}
     			ph2SolutionText2.setText('Durch das trinken von Leitungswasser kann man komplett\nauf Flaschen schleppen verzichten und erzeugt weniger Müll!');
     			gameButton.visible = true;
     			gameButton.input = true;
+    			gameButton.frame = 0;
+    			break;
+    			case 8:
+    				
     			break;
     		}
 
@@ -1712,6 +1967,33 @@
     				}
     		}
     		return attributeString;
+    	}
+
+		function endGame(){
+    		gameOverFlag = 1;
+    		endText.visible = true;
+    		table.visible = false;
+    		hidePh2Question();
+    		ph2SolutionText.visible = false;
+    		ph2SolutionText2.visible = false;
+    		timeLeftText.visible = false;
+    		timerPic.visible = false;
+    		questionsText.visible = false;
+    		pointsText.visible = false;
+    		smallTrophy.visible = false;
+    		questionPic.visible = false;
+    		if(gamePoints > pointsForBronze){
+    			endText.setText('Glückwunsch!\nDu hast dir die Goldmedaille verdient!');
+    		}
+    		else if(gamePoints > pointsForSilver){
+    			endText.setText('Glückwunsch!\nDu hast dir die Silbermedaille verdient!');
+    		}
+    		else if(gamePoints > pointsForGold){
+    			endText.setText('Glückwunsch!\nDu hast dir die Bronzemedaille verdient!');
+    		}
+    		else{
+    			endText.setText('Schade!\nDu hast dir leider keine Medaille verdient.');
+    		}
     	}
 
     	function decTimeLeft(){
